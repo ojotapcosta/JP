@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tweets Inspiradores</title>
+    <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+    <script src="https://unpkg.com/imagesloaded@5/imagesloaded.pkgd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #0052ff 0%, #000000 100%);
+            background-attachment: fixed;
+            font-size: 16px;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .single-tweet-view {
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .grid-view {
+            display: none;
+            width: 90%;
+            margin: 0 auto;
+            padding-top: 32px;
+        }
+
+        .grid-sizer,
+        .tweet-wrapper {
+            width: 30%;
+        }
+
+        .gutter-sizer {
+            width: 5%;
+        }
+
+        .custom-tweet {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease-out;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .grid-view .tweet-wrapper {
+            margin-bottom: 2px;
+            position: relative;
+            float: left;
+            animation: float 3s ease-in-out infinite;
+            padding: 10px;
+        }
+
+        .grid-view .custom-tweet {
+            width: 100%;
+            padding: 24px;
+            margin: 0;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .tweet-container {
+            animation: float 3s ease-in-out infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .tweet-container .custom-tweet {
+            width: 60vw;
+            min-width: 550px;
+            max-width: 1200px;
+            padding: 32px;
+            font-size: 1rem;
+            transform-style: preserve-3d;
+            margin: 0 auto;
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .profile-pic {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+
+        .user-info {
+            flex-grow: 1;
+        }
+
+        .display-name {
+            font-weight: bold;
+            color: #0f1419;
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .username {
+            color: #536471;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .tweet-text {
+            font-size: 1.2rem;
+            line-height: 1.5;
+            margin: 0;
+            color: #0f1419;
+        }
+
+        .tweet-footer {
+            margin-top: 1.5rem;
+            color: #536471;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tweet-link {
+            color: #0052ff;
+            text-decoration: none;
+        }
+
+        .tweet-link:hover {
+            text-decoration: underline;
+        }
+
+        .buttons-container {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        .button {
+            background-color: transparent;
+            color: #ffffff;
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 120px;
+            text-transform: uppercase;
+        }
+
+        .button:hover {
+            background-color: #0052ff;
+            border-color: #0052ff;
+        }
+
+        .fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.12s ease-out;
+        }
+
+        .bounce-in {
+            animation: bounceIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.02);
+            }
+            60% {
+                opacity: 0.85;
+                transform: scale(1.015);
+            }
+            65% {
+                opacity: 0.87;
+                transform: scale(1.012);
+            }
+            70% {
+                opacity: 0.89;
+                transform: scale(1.009);
+            }
+            75% {
+                opacity: 0.91;
+                transform: scale(1.007);
+            }
+            80% {
+                opacity: 0.93;
+                transform: scale(1.005);
+            }
+            85% {
+                opacity: 0.95;
+                transform: scale(1.003);
+            }
+            90% {
+                opacity: 0.97;
+                transform: scale(1.002);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes float {
+            0% { 
+                transform: translateY(0px); 
+            }
+            50% { 
+                transform: translateY(-10px); 
+            }
+            100% { 
+                transform: translateY(0px); 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-view {
+                grid-template-columns: 1fr;
+                width: 100%;
+                padding: 16px;
+            }
+
+            .custom-tweet {
+                width: 100%;
+                margin-bottom: 24px;
+            }
+
+            .tweet-container .custom-tweet {
+                width: 90vw;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="single-tweet-view">
+            <div class="tweet-container">
+                <!-- Tweet será inserido aqui -->
+            </div>
+            <div class="buttons-container">
+                <button class="button random-button">Random</button>
+                <button class="button toggle-button">All</button>
+            </div>
+        </div>
+        
+        <div class="grid-view">
+            <!-- Grid de tweets será inserido aqui -->
+        </div>
+    </div>
+
+    <script>
+        // Aqui vai o JavaScript que vou mandar em seguida
+        const baseTweets = [
+    {
+        id: '1878992676521185716',
+        text: "the only thing that matters is building great things — products, communities, science, art — that changes the world.",
+        date: "13/01/2025"
+    },
+    {
+        id: '1863268684883746923',
+        text: "we are building a new economy with a based culture — by the people, for the people",
+        date: "21/12/2024"
+    },
+    {
+        id: '1883582077117088234',
+        text: "base memes are based.\n\nthere will be upturns and downturns and the most important thing is that we keep building and find ways to bring new people onchain.",
+        date: "26/01/2025"
+    },
+    {
+        id: '1880283746198515835',
+        text: "Work hard — because it's not going to be easy to bring the world onchain.",
+        date: "17/01/2025"
+    },
+    {
+        id: '1836072607260766262',
+        text: "prices down? build.\nprices up? build.\npeacetime? build.\nwartime? build.\npolitics? build.\ntogetherness? build.\nsadness? build.\nhappiness? build.\n\nonchain emerging as the greatest technology revolution in the history of humanity?\n\nbuild, build, build.",
+        date: "17/09/2024"
+    },
+    {
+        id: '1883245253463048209',
+        text: "it's never as good as it seems, it's never as bad as it seems.\n\nheads down, keep building.",
+        date: "25/01/2025"
+    },
+    {
+        id: '1881396788290306171',
+        text: "Base is for ambitious, hard working, collaborative builders who want to increase economic freedom globally.",
+        date: "20/01/2025"
+    },
+    {
+        id: '1881395849063972913',
+        text: "Base is for ambitious, hard working, collaborative builders who want to build a global economy that works for everyone.",
+        date: "20/01/2025"
+    },
+    {
+        id: '1885440305232793858',
+        text: "Base is for everyone.",
+        date: "31/01/2025"
+    },
+    {
+        id: '1862596531058352633',
+        text: "today is a good day to grow your wealth on Base.",
+        date: "29/11/2024"
+    },
+    {
+        id: '1885431374133461241',
+        text: "to all the haters: talk less, onboard more",
+        date: "31/01/2025"
+    },
+    {
+        id: '1882279577038581787',
+        text: "culture moves in cycles — and it's moving onchain",
+        date: "23/01/2025"
+    },
+    {
+        id: '1882927093862019184',
+        text: "I will work harder than anyone to bring the world onchain.",
+        date: "24/01/2025"
+    },
+    {
+        id: '1877814794272784639',
+        text: "Base is the first global onchain economy.",
+        date: "10/01/2025"
+    },
+    {
+        id: '1873838211212116065',
+        text: "Base is an open, global onchain economy that is proudly founded in America, built on Ethereum, and decentralized to be accessible to Everyone.\n\nA new internet, by the people, for the people.",
+        date: "30/12/2024"
+    },
+    {
+        id: '1864334935701721534',
+        text: "the north star for base is to build a global onchain economy that increases innovation, creativity, and freedom",
+        date: "04/12/2024"
+    },
+    {
+        id: '1875009900918759824',
+        text: "Base's north star is to build a global economy, onchain.",
+        date: "02/01/2025"
+    },
+    {
+        id: '1870876339013853695',
+        text: "build long term things,\nwith long term builders",
+        date: "22/12/2024"
+    },
+    {
+        id: '1884999615851958504',
+        text: "We win together.",
+        date: "30/01/2025"
+    },
+    {
+        id: '1885357679499239829',
+        text: "Build for the long term.",
+        date: "31/01/2025"
+    },
+    {
+        id: '1884632976832770420',
+        text: "take all the learnings, then keep building.",
+        date: "29/01/2025"
+    },
+    {
+        id: '1884288749296857560',
+        text: "you can just build things",
+        date: "28/01/2025"
+    },
+    {
+        id: '1882526925757051247',
+        text: "We are building a global based builder network.",
+        date: "23/01/2025"
+    },
+    {
+        id: '1882141804293988467',
+        text: "Builders back builders.",
+        date: "22/01/2025"
+    },
+    {
+        id: '1882088581977763951',
+        text: "every day incredible products are launching on Base and the fire that people are feeling is only accelerating that\n\nnow is our time to build the future",
+        date: "22/01/2025"
+    },
+    {
+        id: '1881399294256877778',
+        text: "I want Base to win because I believe a based future is a better future.",
+        date: "20/01/2025"
+    },
+    {
+        id: '1881153486718689749',
+        text: "this weekend is the start of the next chapter of onchain.\n\ntime to do the hardest, most important work of our lives.",
+        date: "19/01/2025"
+    },
+    {
+        id: '1879556438219247622',
+        text: "Do the right thing — even when it's hard.",
+        date: "15/01/2025"
+    },
+    {
+        id: '1879191533796368518',
+        text: "Good things come to those who stay based.",
+        date: "14/01/2025"
+    },
+    {
+        id: '1878858438140379407',
+        text: "Believe in something (builders).",
+        date: "13/01/2025"
+    },
+    {
+        id: '1878827093955645851',
+        text: "Ignore the prices, keep building.",
+        date: "13/01/2025"
+    }
+];
+
+let currentIndex = 0;
+const tweetsPerLoad = 8;
+let isLoading = false;
+let msnry = null;
+
+function formatDate(dateStr) {
+    const [day, month, year] = dateStr.split('/');
+    const date = new Date(year, month - 1, day);
+    
+    const months = [
+        'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+}
+
+function createTweetElement(tweet, isGrid = false) {
+    const tweetHtml = `
+        <div class="custom-tweet" onclick="copyTweet('${tweet.text.replace(/'/g, "\\'")}', '${tweet.date}')">
+            <div class="tweet-header">
+                <img class="profile-pic" src="https://pbs.twimg.com/profile_images/1879556312822120448/QngrqCSC_400x400.jpg" alt="Jesse Pollak">
+                <div class="user-info">
+                    <p class="display-name">Jesse Pollak</p>
+                    <p class="username">@jessepollak</p>
+                </div>
+            </div>
+            <p class="tweet-text">${tweet.text}</p>
+            <div class="tweet-footer">
+                <span>${formatDate(tweet.date)}</span>
+                <a href="https://twitter.com/jessepollak/status/${tweet.id}" target="_blank" class="tweet-link" onclick="event.stopPropagation()">X →</a>
+            </div>
+        </div>
+    `;
+
+    if (isGrid) {
+        return `<div class="tweet-wrapper">${tweetHtml}</div>`;
+    }
+    return tweetHtml;
+}
+
+function initSingleTweetTilt(element) {
+    if (element.vanillaTilt) {
+        element.vanillaTilt.destroy();
+    }
+
+    VanillaTilt.init(element, {
+        max: 8,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.3,
+        scale: 1.02,
+        gyroscope: true,
+        perspective: 1000
+    });
+}
+
+function showTweet(tweet) {
+    const tweetContainer = document.querySelector('.tweet-container');
+    tweetContainer.innerHTML = createTweetElement(tweet, false);
+    
+    const newTweet = tweetContainer.querySelector('.custom-tweet');
+    newTweet.classList.add('bounce-in');
+    
+    setTimeout(() => {
+        newTweet.classList.remove('bounce-in');
+    }, 350);
+    
+    initSingleTweetTilt(newTweet);
+}
+
+async function getRandomTweet() {
+    const tweetContainer = document.querySelector('.tweet-container');
+    const oldTweet = tweetContainer.querySelector('.custom-tweet');
+    
+    if (oldTweet) {
+        if (oldTweet.vanillaTilt) {
+            oldTweet.vanillaTilt.destroy();
+        }
+        oldTweet.classList.add('fade-out');
+        await new Promise(resolve => setTimeout(resolve, 120));
+    }
+
+    const randomIndex = Math.floor(Math.random() * baseTweets.length);
+    showTweet(baseTweets[randomIndex]);
+}
+
+function initMasonry() {
+    const grid = document.querySelector('.grid-view');
+    
+    // Limpa instância anterior se existir
+    if (msnry) {
+        msnry.destroy();
+        msnry = null;
+    }
+    
+    // Garante que os elementos de dimensionamento existam
+    if (!grid.querySelector('.grid-sizer')) {
+        const sizer = document.createElement('div');
+        sizer.className = 'grid-sizer';
+        grid.insertBefore(sizer, grid.firstChild);
+        
+        const gutter = document.createElement('div');
+        gutter.className = 'gutter-sizer';
+        grid.insertBefore(gutter, grid.firstChild);
+    }
+
+    // Configura o Masonry
+    const options = {
+        itemSelector: '.tweet-wrapper',
+        columnWidth: '.grid-sizer',
+        gutter: '.gutter-sizer',
+        percentPosition: true,
+        transitionDuration: 0,
+        initLayout: true
+    };
+
+    // Inicializa após as imagens carregarem
+    imagesLoaded(grid, function() {
+        msnry = new Masonry(grid, options);
+        
+        // Força um relayout após um momento
+        setTimeout(() => {
+            msnry.layout();
+        }, 100);
+    });
+}
+
+function initTiltEffect() {
+    VanillaTilt.init(document.querySelectorAll('.custom-tweet'), {
+        max: 8,
+        speed: 400,
+        glare: true,
+        "max-glare": 0.3,
+        scale: 1.02,
+        gyroscope: true
+    });
+}
+
+function loadMoreTweets() {
+    if (isLoading || currentIndex >= baseTweets.length) return;
+    isLoading = true;
+    
+    const gridView = document.querySelector('.grid-view');
+    const newTweets = baseTweets.slice(currentIndex, currentIndex + tweetsPerLoad);
+    
+    newTweets.forEach(tweet => {
+        const tweetElement = document.createElement('div');
+        tweetElement.innerHTML = createTweetElement(tweet, true);
+        const wrapper = tweetElement.firstElementChild;
+        gridView.appendChild(wrapper);
+        
+        // Inicializa o Tilt no tweet
+        const tweetDiv = wrapper.querySelector('.custom-tweet');
+        initSingleTweetTilt(tweetDiv);
+    });
+
+    initMasonry();
+    
+    currentIndex += tweetsPerLoad;
+    isLoading = false;
+}
+
+function handleScroll() {
+    if ((window.innerHeight + window.scrollY) >= document.documentElement.scrollHeight - 800) {
+        loadMoreTweets();
+    }
+}
+
+function toggleView() {
+    const singleTweetView = document.querySelector('.single-tweet-view');
+    const gridView = document.querySelector('.grid-view');
+    
+    if (gridView.style.display === 'none' || gridView.style.display === '') {
+        singleTweetView.style.display = 'none';
+        gridView.style.display = 'block';
+        document.body.style.overflow = 'auto';
+        
+        // Carrega o primeiro lote de tweets
+        loadMoreTweets();
+        
+        // Carrega mais dois lotes imediatamente
+        setTimeout(() => {
+            loadMoreTweets();
+            setTimeout(() => {
+                loadMoreTweets();
+            }, 100);
+        }, 100);
+        
+        window.addEventListener('scroll', handleScroll);
+    } else {
+        singleTweetView.style.display = 'flex';
+        gridView.style.display = 'none';
+        document.body.style.overflow = 'hidden';
+        window.removeEventListener('scroll', handleScroll);
+        currentIndex = 0;
+        gridView.innerHTML = '';
+        msnry = null;
+    }
+}
+
+async function copyTweet(text, date) {
+    const year = date.split('/')[2];
+    const formattedText = `"${text}" - Pollak, Jesse (${year})`;
+    
+    try {
+        await navigator.clipboard.writeText(formattedText);
+        
+        // Feedback visual temporário
+        const tooltip = document.createElement('div');
+        tooltip.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+        `;
+        tooltip.textContent = 'Tweet copiado!';
+        document.body.appendChild(tooltip);
+        
+        // Anima o tooltip
+        setTimeout(() => tooltip.style.opacity = '1', 0);
+        setTimeout(() => {
+            tooltip.style.opacity = '0';
+            setTimeout(() => tooltip.remove(), 200);
+        }, 1500);
+    } catch (err) {
+        console.error('Erro ao copiar:', err);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM carregado, verificando VanillaTilt');
+    
+    const checkVanillaTilt = setInterval(() => {
+        console.log('Verificando disponibilidade do VanillaTilt');
+        if (typeof VanillaTilt !== 'undefined') {
+            console.log('VanillaTilt encontrado, inicializando');
+            clearInterval(checkVanillaTilt);
+            
+            const randomIndex = Math.floor(Math.random() * baseTweets.length);
+            showTweet(baseTweets[randomIndex]);
+        }
+    }, 50);
+
+    document.querySelector('.random-button').addEventListener('click', getRandomTweet);
+    document.querySelector('.toggle-button').addEventListener('click', toggleView);
+});
+    </script>
+</body>
+</html>
